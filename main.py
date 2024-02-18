@@ -96,8 +96,8 @@ def test_distance_pour_deplacement():
 
 
 def test_saut_valide():
-    assert saut_valide(grille_fin, (5, 3), 1) == True
-    assert saut_valide(grille_fin, (4, 3), 2) == False
+    assert saut_valide(grille_debut, (1, 0), 1) == True
+    assert saut_valide(grille_debut, (3, 3), 1) == False
     print("Test 8 'OK'")
 
 
@@ -270,7 +270,7 @@ def deplacement_valide(coord_depart, coord_arrivee):
     return distance[0] == 1 or distance[1] == 1 or distance[0] == -1 or distance[1] == -1
 
 def saut_valide(grille, pion_du_milieu, joueur):
-    return grille[pion_du_milieu[0]][pion_du_milieu[1]] > 0 and grille[pion_du_milieu[0]][pion_du_milieu[1]] != joueur
+    return grille[pion_du_milieu[0]][pion_du_milieu[1]] == joueur
 
 def id_pion_milieu(coord_depart, coord_arrivee):
     distance = calcul_distance(coord_depart, coord_arrivee)
