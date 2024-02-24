@@ -105,7 +105,7 @@ def test_saut_valide():
 
 
 def test_deplacement_valide():
-    assert deplacement_valide((0, 2), (0, 1)) == True
+    assert deplacement_valide((0, 2), (1, 2)) == True
     assert deplacement_valide((0, 2,), (0, 4)) == False
     print("Test 9 'OK'")
 
@@ -267,7 +267,9 @@ def deplacement_saut(grille, coord_depart, coord_arrivee):
 
 def deplacement_valide(coord_depart, coord_arrivee):
     distance = calcul_distance(coord_depart, coord_arrivee)
-    return distance[0] == 1 or distance[1] == 1 or distance[0] == -1 or distance[1] == -1
+    if distance[0] == 2 or distance[1] == 2:
+        
+    return distance[0] == 1 or distance[1] == 1 or distance[0] == -1 or distance[1] == -1 and case_vide(coord_arrivee, grille)
 
 def saut_valide(grille, pion_du_milieu, joueur):
     return grille[pion_du_milieu[0]][pion_du_milieu[1]] == joueur
@@ -324,13 +326,6 @@ def deplacer_pion(grille, joueur):
     # vérification de la distance
     while not distance_case_valide(distance):
         print("La case est trop éloigné, \nVeuillez saisir la coordonnée de le case ou doit atterir le pion", end="")
-        coord_arrivee = saisir_coordonnees(grille)
-        distance = calcul_distance(coord_depart, coord_arrivee)
-
-    # vérification si la case est bien vide a l'arrivée
-    while not case_vide(coord_arrivee, grille):
-        print("La case contient déjà un pion, \nVeuillez saisir la coordonnée de le case ou doit atterir le pion",
-              end="")
         coord_arrivee = saisir_coordonnees(grille)
         distance = calcul_distance(coord_depart, coord_arrivee)
 
@@ -426,92 +421,73 @@ print("--------------------------")
 # demande au joueur sur quelle grille il veut jouer
 
 print("Sur quelle grille voulez vous jouer ?")
-print("1 : Grille début")
-print("2 : Grille début")
-print("3 : Grille début")
+print("1 : Grille début \n 2 : Grille début \n 3 : Grille début")
 choix = input()
-while choix != "1" and choix != "2" and choix != "3":
+while choix != "1" and choix != "2" and choix != "3":  # vérification de la saisie
     print("Veuillez saisir 1, 2 ou 3 pour choisir la configuration.")
     choix = input()
 
-choix = int(choix)
+valChoix = int(choix)
 
-if choix == 1:
+if valChoix == 1:
     grille = list_copy(grille_debut)
     joueur = 1
 
-if choix == 2:
+if valChoix == 2:
     grille = list_copy(grille_milieu)
     joueur = 2
 
-if choix == 3:
+if valChoix == 3:
     grille = list_copy(grille_fin)
     joueur = 2
 
 subprocess.call('cls', shell=True)  # clear la console pour ne pas voir les affichages précedents
 
-print("Avec quel joueur voulez vous jouer ?")
-print("1 : Joueur 2")
-print("2 : IA\n !(beta)!")
+i = 0
+while i == 0:
+    print("---------- Binvenue dans le jeu des Canaries ! ----------\n")
 
-choix_joueur = input()
-while choix_joueur != "1" and choix_joueur != "2":
-    print("Veuillez saisir 1 ou 2 pour choisir un adversaire.")
-    choix_joueur = input()
+    afficher_grille(grille)
+    print("c'est au tour de", joueur, "\n")
+    pions = pion_restant(grille)
+    print("Pions noirs (joueur 1 ●) :", pions[0], "| Pions blancs (joueur 2 ○) :", pions[1], "\n")
 
-subprocess.call('cls', shell=True)  # clear la console pour ne pas voir les affichages précedents
-
-if choix_joueur == "1":
-    i = 0
-    while i == 0:
-        print("---------- Binvenue dans le jeu des Canaries ! ----------\n")
-
-        afficher_grille(grille)
-        print("c'est au tour de", joueur, "\n")
-        pions = pion_restant(grille)
-        print("Pions noirs (joueur 1 ●) :", pions[0], "| Pions blancs (joueur 2 ○) :", pions[1], "\n")
-
-        # cas 2 de la fonction deplacer_pion traité ici pour éviter d'utiliser la récursivité
-
-        save_grille = list_copy(grille)
+    save_grille = list_copy(grille)
+    grille, coord_enchainement = deplacer_pion(grille, joueur)
+    while comparer_listes(save_grille, grille):
+        print("Déplacement invalide, veuillez esssayer à nouveau.", "\n")
         grille, coord_enchainement = deplacer_pion(grille, joueur)
-        while comparer_listes(save_grille, grille):
-            print("Déplavement invalide, veuillez esssayer à nouveau.", "\n")
-            grille, coord_enchainement = deplacer_pion(grille, joueur)
 
-        subprocess.call('cls', shell=True)  # clear la console pour ne pas voir les affichages précedents
-        print("---------- Binvenue ! ----------\n")
-        print("-------- Jeux des Canaries --------\n")
-        afficher_grille(grille)
-        print("c'est au tour de", joueur, "\n")
-        pions = pion_restant(grille)
-        print("Pions noirs (joueur 1 ●) :", pions[0], "| Pions blancs (joueur 2 ○) :", pions[1], "\n")
-        if coord_enchainement != 0 and pion_mangeable(grille, coord_enchainement, joueur):
+    subprocess.call('cls', shell=True)  # clear la console pour ne pas voir les affichages précedents
+    print("---------- Binvenue ! ----------\n")
+    print("-------- Jeux des Canaries --------\n")
+    afficher_grille(grille)
+    print("c'est au tour de", joueur, "\n")
+    pions = pion_restant(grille)
+    print("Pions noirs (joueur 1 ●) :", pions[0], "| Pions blancs (joueur 2 ○) :", pions[1], "\n")
+
+    if coord_enchainement != 0 and pion_mangeable(grille, coord_enchainement, joueur):
+        choix_enchainement = input("Souhaitez vous enchainer le saut de pions ? (0 : oui / 1 : non) : \n")
+        while choix_enchainement != "0" and choix_enchainement != "1":
+            print("Veuillez saisir 0 pour oui et 1 pour non.")
             choix_enchainement = input("Souhaitez vous enchainer le saut de pions ? (0 : oui / 1 : non) : \n")
-            while choix_enchainement != "0" and choix_enchainement != "1":
-                print("Veuillez saisir 0 pour oui et 1 pour non.")
-                choix_enchainement = input("Souhaitez vous enchainer le saut de pions ? (0 : oui / 1 : non) : \n")
-            choix_enchainement = int(choix_enchainement)
-            if choix_enchainement == 0:
-                grille = enchainement(grille, coord_enchainement, joueur)
+        choix_enchainement = int(choix_enchainement)
+        if choix_enchainement == 0:
+            grille = enchainement(grille, coord_enchainement, joueur)
 
         # changement de tour des joueurs
-        if joueur == 1:
-            joueur = 2
-        else:
-            joueur = 1
+    if joueur == 1:
+        joueur = 2
+    else:
+        joueur = 1
 
         # savoir si le jeu est fini (pion en dessous de 6 ou aucun déplacement possible)
 
-        if jeu_fini(grille, joueur):
-            pions = pion_restant(grille)
-            print("Pions noirs :", pions[0], "| Pions blancs :", pions[1], "\n")
-            print("Joueur", joueur, "a gagné\n")
-            time.sleep(3)  # laisse le temps au joueur de voir qui a gagné
-            i = 1
+    if jeu_fini(grille, joueur):
+        pions = pion_restant(grille)
+        print("Pions noirs :", pions[0], "| Pions blancs :", pions[1], "\n")
+        print("Joueur", joueur, "a gagné\n")
+        time.sleep(3)  # laisse le temps au joueur de voir qui a gagné
+        i = 1
 
-        subprocess.call('cls', shell=True)  # clear la console pour ne pas voir les affichages précedents
-
-    else:
-        print("Zone en construction")
-        print("Prochainement sera disponible!!")
+    subprocess.call('cls', shell=True)  # clear la console pour ne pas voir les affichages précedents
