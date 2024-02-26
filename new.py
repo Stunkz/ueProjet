@@ -55,12 +55,12 @@ def est_orthogonal_distance_2_ou_1(ligne_origine, colonne_origine, ligne_destina
   # Un déplacement est orthogonal et de distance 2 ou 1 si :
   # - La différence entre les lignes et les colonnes est de 0 ou 1
   # - La distance entre les deux cases est de 1 ou 2
-  return (abs(diff_ligne) == 1 and diff_colonne == 0) or (diff_ligne == 0 and abs(diff_colonne) == 1) or (abs(diff_ligne) == 2 and abs(diff_colonne) == 2)
+  return (abs(diff_ligne) == 1 and diff_colonne == 0) or (diff_ligne == 0 and abs(diff_colonne) == 1) or (abs(diff_ligne) == 2 and abs(diff_colonne) == 0) or (abs(diff_ligne) == 0 and abs(diff_colonne) == 2)
 
 
 def capturer_pion(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
     # Valider saut
-    print("pass 53")
+    print("pass 63")
     if est_orthogonal_distance_2_ou_1(ligne_origine, colonne_origine, ligne_destination, colonne_destination):
       if abs(ligne_origine - ligne_destination == 2) or abs(colonne_origine - colonne_destination) == 2:
           ligne_intermediaire = (ligne_origine + ligne_destination) // 2
@@ -114,15 +114,25 @@ def fin_du_jeu():
     for colonne in range(4):
       # Si la case est occupée par un pion du tour actuel
       if plateau[ligne][colonne] == tour:
-        # Vérifier si le pion a des mouvements possibles
+        # Vérifier si le pion a des captures possibles
+        for ligne_destination in range(4):
+          for colonne_destination in range(4):
+            if capture_valide(plateau, ligne, colonne, ligne_destination, colonne_destination, tour):
+              # Si une capture est possible, le joueur n'est pas mat
+              return False
+
+  # Si aucune capture n'est possible, vérifier si le joueur a des mouvements simples possibles
+  for ligne in range(4):
+    for colonne in range(4):
+      if plateau[ligne][colonne] == tour:
         for ligne_destination in range(4):
           for colonne_destination in range(4):
             if mouvement_valide(plateau, ligne, colonne, ligne_destination, colonne_destination, tour):
-              # Si un mouvement est possible, le joueur n'est pas mat
               return False
 
   # Si aucun mouvement n'est possible, le joueur est mat
   return True
+
 
 
 def demander_mouvement():
