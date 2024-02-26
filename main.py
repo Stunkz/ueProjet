@@ -267,8 +267,7 @@ def deplacement_saut(grille, coord_depart, coord_arrivee):
 
 def deplacement_valide(coord_depart, coord_arrivee):
     distance = calcul_distance(coord_depart, coord_arrivee)
-    if distance[0] == 2 or distance[1] == 2:
-        
+
     return distance[0] == 1 or distance[1] == 1 or distance[0] == -1 or distance[1] == -1 and case_vide(coord_arrivee, grille)
 
 def saut_valide(grille, pion_du_milieu, joueur):
