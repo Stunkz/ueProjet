@@ -8,8 +8,8 @@ plateau = [
 LIGNES = {0: "A", 1: "B", 2: "C", 3: "D"}  # Define LIGNES before calling the function
 PIONS = {0: " ", 1: "●", 2: "○"}  # Define the PIONS dictionary
 
-pions_noirs = 2
-pions_blancs = 2
+pions_noirs = 4
+pions_blancs = 4
 tour = 'noirs'
 
 def afficher_plateau():
@@ -21,28 +21,32 @@ def afficher_plateau():
 def _lettre_vers_num(lettre):
   return ord(lettre.lower()) - ord('a')
 
+def est_mouvement_capture(ligne_origine, colonne_origine, ligne_destination, colonne_destination):
+  # Déterminer la différence entre les lignes et les colonnes
+  diff_ligne = ligne_destination - ligne_origine
+  diff_colonne = colonne_destination - colonne_origine
+
+  if (abs(diff_ligne) == 2 and abs(diff_colonne) == 0) or (abs(diff_ligne) == 0 and abs(diff_colonne) == 2):
+    return True
+  return False
+
+
 def mouvement_valide(ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
   # Valider dans le plateau
   if (0 <= ligne_origine < 4 and 0 <= colonne_origine < 4 and 0 <= ligne_destination < 4 and 0 <= colonne_destination < 4):
-    print("pass 27")
-    print("reg:", ligne_origine, colonne_origine, ligne_destination, colonne_destination)
 
     # Vérifier si le mouvement est un mouvement de capture
     if (abs(ligne_origine - ligne_destination) == 2 or abs(colonne_origine - colonne_destination) == 2):
-      print("pass 31")
       return True
 
     # Valider mouvement orthogonal et distance de 1 case
     elif (abs(ligne_origine - ligne_destination) == 1 and colonne_origine == colonne_destination) or (ligne_origine == ligne_destination and abs(colonne_origine - colonne_destination) == 1):
-      print("pass 38")
       # Valider si la case de destination est vide
       if plateau[ligne_destination][colonne_destination] == 0:
         return True
       # Gérer le cas où la case de destination est occupée par un pion de la même couleur
       if plateau[ligne_destination][colonne_destination] != 0 and plateau[ligne_destination][colonne_destination] == tour:
-        print("pass 43")
         return False
-    print("pass 45")
     return False
   return False
 
@@ -60,19 +64,16 @@ def est_orthogonal_distance_2_ou_1(ligne_origine, colonne_origine, ligne_destina
 
 def capturer_pion(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
     # Valider saut
-    print("pass 63")
     if est_orthogonal_distance_2_ou_1(ligne_origine, colonne_origine, ligne_destination, colonne_destination):
       if abs(ligne_origine - ligne_destination == 2) or abs(colonne_origine - colonne_destination) == 2:
           ligne_intermediaire = (ligne_origine + ligne_destination) // 2
           colonne_intermediaire = (colonne_origine + colonne_destination) // 2
-          print("reg:", ligne_intermediaire, colonne_intermediaire)
 
           # Valider si le pion intermédiaire est de l'équipe
           if plateau[ligne_intermediaire][colonne_intermediaire] == plateau[ligne_origine][colonne_origine]:
               return True
           print("Vous ne pouvez pas sauter sur un pion enemi")
           return False
-      print("pass 65")
       return False
     print("Mouvement non orthogonal ou distance invalide. err 77")
     return False
@@ -95,9 +96,9 @@ def compter_pions():
   for ligne in plateau:
     for case in ligne:
       if case == 1:
-        pions_noirs += 1
-      elif case == 2:
         pions_blancs += 1
+      elif case == 2:
+        pions_noirs += 1
 
 def fin_du_jeu():
   global pions_noirs, pions_blancs
@@ -112,23 +113,12 @@ def fin_du_jeu():
   # Parcourir toutes les cases du plateau
   for ligne in range(4):
     for colonne in range(4):
-      # Si la case est occupée par un pion du tour actuel
-      if plateau[ligne][colonne] == tour:
-        # Vérifier si le pion a des captures possibles
-        for ligne_destination in range(4):
-          for colonne_destination in range(4):
-            if capture_valide(plateau, ligne, colonne, ligne_destination, colonne_destination, tour):
-              # Si une capture est possible, le joueur n'est pas mat
-              return False
-
-  # Si aucune capture n'est possible, vérifier si le joueur a des mouvements simples possibles
-  for ligne in range(4):
-    for colonne in range(4):
-      if plateau[ligne][colonne] == tour:
-        for ligne_destination in range(4):
-          for colonne_destination in range(4):
-            if mouvement_valide(plateau, ligne, colonne, ligne_destination, colonne_destination, tour):
-              return False
+      # Vérifier si le pion a des mouvements possibles
+      for ligne_destination in range(4):
+        for colonne_destination in range(4):
+          if mouvement_valide(ligne, colonne, ligne_destination, colonne_destination, tour):
+            # Si un mouvement est possible, le joueur n'est pas mat
+            return False
 
   # Si aucun mouvement n'est possible, le joueur est mat
   return True
@@ -182,11 +172,12 @@ def boucle_jeu():
 
     # Valider le mouvement et l'effectuer
     if mouvement_valide(ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
-      if capturer_pion(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
-        effectuer_mouvement(ligne_origine, colonne_origine, ligne_destination, colonne_destination)
-        compter_pions()
+      if est_mouvement_capture(ligne_origine, colonne_origine, ligne_destination, colonne_destination):
+        if capturer_pion(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
+          effectuer_mouvement(ligne_origine, colonne_origine, ligne_destination, colonne_destination)
+          compter_pions()
       else:
-        print('err 141 Vous avez perdu votre tour')
+        effectuer_mouvement(ligne_origine, colonne_origine, ligne_destination, colonne_destination)
     else:
       print('Mouvement non valide : en dehors du plateau ou mouvement non orthogonal. err 143')
 
@@ -200,9 +191,4 @@ def boucle_jeu():
     print('Pions blancs: ' + str(pions_blancs))
   return True
 
-tour= 'noirs'
-print('Début du jeu ! Tour des pions ', tour)
-
 boucle_jeu()
-
-
