@@ -32,8 +32,7 @@ def choisir_plateau():
         choix = input("Entrez votre choix (1, 2 ou 3) : ")
         if choix in ['1', '2', '3']:
             if choix == '1':
-                plateau = plateau_debut
-                return plateau
+                return plateau_debut
             elif choix == '2':
                 plateau = plateau_milieu
                 return plateau
@@ -134,7 +133,7 @@ def changer_tour():
         tour = 'bleus'
 
 
-def compter_pions():
+def compter_pions(plateau):
     global pions_noirs, pions_blancs
     pions_noirs = 0
     pions_blancs = 0
@@ -209,7 +208,8 @@ def _valider_case(case):
 def afficher_message_couleur(message, couleur="reset", gras=False, italique=False):
     codes_style = {
         "gras": "\033[1m",
-        "italique": "\033[3m"
+        "italique": "\033[3m",
+        "rien": "
     }
 
     codes_couleur = {
@@ -233,7 +233,7 @@ def afficher_message_couleur(message, couleur="reset", gras=False, italique=Fals
     }
 
     code_couleur = codes_couleur.get(couleur.lower(), "")
-    code_style = codes_style.get("gras" if gras else "italique" if italique else "")
+    code_style = codes_style.get("gras" if gras else "italique" if italique else "rien")
 
     if not couleur and not gras and not italique:
         return message
@@ -272,7 +272,7 @@ def boucle_jeu():
     print("1. Début du jeu")
     print("2. Milieu du jeu")
     print("3. Fin du jeu")
-    tour = 'bleu'
+    tour = 'bleus'
     plateau = choisir_plateau()  # Initialiser la variable tour
     while not fin_du_jeu(plateau):
         # Afficher le plateau choisi
@@ -289,7 +289,7 @@ def boucle_jeu():
             if est_mouvement_capture(ligne_origine, colonne_origine, ligne_destination, colonne_destination):
                 if capturer_pion(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
                     effectuer_mouvement(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination)
-                    compter_pions()
+                    compter_pions(plateau)
                 else:
                     afficher_message_couleur("Vous ne pouvez pas sauter sur un pion ennemi.", couleur="rouge")
                     continue  # Revenir au début de la boucle pour redemander le mouvement
@@ -310,5 +310,5 @@ def boucle_jeu():
 
     afficher_message_couleur("Le jeu est terminé.", couleur="vert", gras=True)
 
-
-boucle_jeu()
+if __name__ == "__main__":
+    boucle_jeu()
