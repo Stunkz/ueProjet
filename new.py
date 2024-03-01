@@ -1,11 +1,10 @@
 """
-Modifié afficher_message_couleur par message_couleur car techniquement il n'affiche pas il renvoie le message.
+Modifié afficher_message_couleur par message_couleur car techniquement il n'affiche pas mais il renvoie le message.
 Utilisé un dico pour le début pour le choix de map. Evite de faire 3 if. Plus lisible.
-Rajouté le print d'information (marche pas encore), retiré le print en double.
+Rajouté le print d'information retiré le print en double.
+Réglé le bug du déplacement de pion. on pouvait traverser toute la map mdrrrr.
 
 BUG :
-Tant qu'il y a un pion qui est à nous dans la trajectoire alors on peut faire le mouvement. On peut donc traverser tout le plateau. Exemple d1 -> b4
-Mauvais comptage du nombre de pions.
 Certaine gestion d'érreur sont mal faite. Des print sans couleur ou alors des appel de fonction qui ne sont pas print.
 
 """
@@ -73,28 +72,37 @@ def est_mouvement_capture(ligne_origine, colonne_origine, ligne_destination, col
         return True
     return False
 
+def hors_plateau(ligne, colonne):
+    return ligne < 0 or ligne > 3 or colonne < 0 or colonne > 3
+
+def distance(ligne_origine, colonne_origine, ligne_destination, colonne_destination):
+    return abs(ligne_origine - ligne_destination) + abs(colonne_origine - colonne_destination)
 
 def mouvement_valide(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour):
     # Valider dans le plateau
-    if (0 <= ligne_origine < 4 and 0 <= colonne_origine < 4 and 0 <= ligne_destination < 4
-            and 0 <= colonne_destination < 4):
-
-        # Vérifier si le mouvement est un mouvement de capture
-        if abs(ligne_origine - ligne_destination) == 2 or abs(colonne_origine - colonne_destination) == 2:
-            return True
-
-        # Valider mouvement orthogonal et distance de 1 case
-        elif ((abs(ligne_origine - ligne_destination) == 1 and colonne_origine == colonne_destination)
-              or (ligne_origine == ligne_destination and abs(colonne_origine - colonne_destination) == 1)):
-            # Valider si la case de destination est vide
-            if plateau[ligne_destination][colonne_destination] == 0:
-                return True
-            # Gérer le cas où la case de destination est occupée par un pion de la même couleur
-            if (plateau[ligne_destination][colonne_destination] != 0 and
-                    plateau[ligne_destination][colonne_destination] == tour):
-                return False
+    if ( hors_plateau(ligne_origine, colonne_origine) or hors_plateau(ligne_destination, colonne_destination) ):
         return False
-    return False
+
+
+    # Valide que les déplacement en diagonale ou en ligne droite. La distance ne peut pas dépasser 4
+    distance_entre_cases = distance(ligne_origine, colonne_origine, ligne_destination, colonne_destination)
+    if ( distance_entre_cases > 4 or distance_entre_cases % 2 == 1 ):
+        return False
+
+    # Vérifier si le mouvement est un mouvement de capture
+    if abs(ligne_origine - ligne_destination) == 2 or abs(colonne_origine - colonne_destination) == 2:
+        return True
+
+    # Valider mouvement orthogonal et distance de 1 case
+    elif ((abs(ligne_origine - ligne_destination) == 1 and colonne_origine == colonne_destination)
+          or (ligne_origine == ligne_destination and abs(colonne_origine - colonne_destination) == 1)):
+        # Valider si la case de destination est vide
+        if plateau[ligne_destination][colonne_destination] == 0:
+            return True
+        # Gérer le cas où la case de destination est occupée par un pion de la même couleur
+        if (plateau[ligne_destination][colonne_destination] != 0 and
+                plateau[ligne_destination][colonne_destination] == tour):
+            return False
 
 
 def est_orthogonal_distance_2_ou_1(ligne_origine, colonne_origine, ligne_destination, colonne_destination):
@@ -290,11 +298,11 @@ def boucle_jeu():
     while not fin_du_jeu(plateau):
         # Afficher le plateau choisi
 
-
         # Demander le mouvement au joueur actuel
         ligne_origine, colonne_origine, ligne_destination, colonne_destination = demander_mouvement(tour)
 
         # Valider le mouvement
+        print(ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour)
         est_mouvement_valide = mouvement_valide(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination, tour)
 
         # Vérifier si le mouvement est valide et l'effectuer
@@ -309,7 +317,7 @@ def boucle_jeu():
             else:
                 effectuer_mouvement(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination)
         else:
-            message_couleur("Mouvement invalide. Veuillez réessayer.", couleur="rouge")
+            print(message_couleur("Mouvement invalide. Veuillez réessayer.", couleur="rouge"))
             continue  # Revenir au début de la boucle pour redemander le mouvement
 
         # Changer de tour
