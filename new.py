@@ -1,3 +1,15 @@
+"""
+Modifié afficher_message_couleur par message_couleur car techniquement il n'affiche pas il renvoie le message.
+Utilisé un dico pour le début pour le choix de map. Evite de faire 3 if. Plus lisible.
+Rajouté le print d'information (marche pas encore), retiré le print en double.
+
+BUG :
+Tant qu'il y a un pion qui est à nous dans la trajectoire alors on peut faire le mouvement. On peut donc traverser tout le plateau. Exemple d1 -> b4
+Mauvais comptage du nombre de pions.
+Certaine gestion d'érreur sont mal faite. Des print sans couleur ou alors des appel de fonction qui ne sont pas print.
+
+"""
+
 # Plateaux représentant le début, le milieu et la fin du jeu
 plateau_debut = [
     [1, 1, 1, 1],
