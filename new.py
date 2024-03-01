@@ -28,17 +28,11 @@ pions_noirs = 4
 pions_blancs = 4
 
 def choisir_plateau():
+    plateau_dico = { '1': plateau_debut, '2': plateau_milieu, '3': plateau_fin }
     while True:
         choix = input("Entrez votre choix (1, 2 ou 3) : ")
-        if choix in ['1', '2', '3']:
-            if choix == '1':
-                return plateau_debut
-            elif choix == '2':
-                plateau = plateau_milieu
-                return plateau
-            else:
-                plateau = plateau_fin
-                return plateau
+        if choix in plateau_dico:
+            return plateau_dico.get(choix)
         else:
             print("Choix invalide. Veuillez entrer 1, 2 ou 3.")
 
@@ -47,7 +41,7 @@ def afficher_plateau(plateau):
     couleur_pion = {1: '\033[91m', 2: '\033[96m', 0: '\033[0m'}
     print('     1   2   3   4')
     for ligne_index, ligne in enumerate(plateau):
-        print(' {} | '.format(LIGNES[ligne_index]), end='')
+        print(f" {LIGNES[ligne_index]} | ", end='')
         for case in ligne:
             print(couleur_pion[case] + PIONS[case] + '\033[0m' + ' | ', end='')
         print()
@@ -174,15 +168,15 @@ def demander_mouvement(tour):
     destination = None
 
     while not origine or not destination:
-        print(afficher_message_couleur(f"Tour: {tour}", couleur="jaune", gras=True))
+        print(message_couleur(f"Tour: {tour}", couleur="jaune", gras=True))
         # Demander la case d'origine
-        origine = input(afficher_message_couleur('Entrez la case d\'origine (lettre et numéro) : ', couleur="cyan", gras=False))
+        origine = input(message_couleur('Entrez la case d\'origine (lettre et numéro) : ', couleur="cyan", gras=False))
 
         # Demander la case de destination
-        destination = input(afficher_message_couleur('Entrez la case de destination (lettre et numéro) : ', couleur="cyan", gras=False))
+        destination = input(message_couleur('Entrez la case de destination (lettre et numéro) : ', couleur="cyan", gras=False))
 
         if not _valider_case(origine) or not _valider_case(destination):
-            print(afficher_message_couleur("Mouvement invalide : format incorrect.", couleur="rouge"))
+            print(message_couleur("Mouvement invalide : format incorrect.", couleur="rouge"))
             origine = None
             destination = None
 
@@ -205,11 +199,11 @@ def _valider_case(case):
     return True
 
 
-def afficher_message_couleur(message, couleur="reset", gras=False, italique=False):
+def message_couleur(message, couleur="reset", gras=False, italique=False):
     codes_style = {
         "gras": "\033[1m",
         "italique": "\033[3m",
-        "rien": "
+        "rien": ""
     }
 
     codes_couleur = {
@@ -232,11 +226,17 @@ def afficher_message_couleur(message, couleur="reset", gras=False, italique=Fals
         "fond_blanc": "\033[47m",
     }
 
+    if couleur not in codes_couleur:
+        print("Couleur invalide. Utilisation de la couleur par défaut.")
+        couleur = "reset"
+
+    if gras and italique:
+        print("Impossible d'appliquer deux styles simultanément. Utilisation du style par défaut.")
+        gras = False
+        italique = False
+
     code_couleur = codes_couleur.get(couleur.lower(), "")
     code_style = codes_style.get("gras" if gras else "italique" if italique else "rien")
-
-    if not couleur and not gras and not italique:
-        return message
 
     message_couleur = f"{code_couleur}{code_style}{message}{codes_couleur['reset']}"
     return message_couleur
@@ -274,9 +274,10 @@ def boucle_jeu():
     print("3. Fin du jeu")
     tour = 'bleus'
     plateau = choisir_plateau()  # Initialiser la variable tour
+    afficher_plateau(plateau)
     while not fin_du_jeu(plateau):
         # Afficher le plateau choisi
-        afficher_plateau(plateau)
+
 
         # Demander le mouvement au joueur actuel
         ligne_origine, colonne_origine, ligne_destination, colonne_destination = demander_mouvement(tour)
@@ -291,12 +292,12 @@ def boucle_jeu():
                     effectuer_mouvement(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination)
                     compter_pions(plateau)
                 else:
-                    afficher_message_couleur("Vous ne pouvez pas sauter sur un pion ennemi.", couleur="rouge")
+                    message_couleur("Vous ne pouvez pas sauter sur un pion ennemi.", couleur="rouge")
                     continue  # Revenir au début de la boucle pour redemander le mouvement
             else:
                 effectuer_mouvement(plateau, ligne_origine, colonne_origine, ligne_destination, colonne_destination)
         else:
-            afficher_message_couleur("Mouvement invalide. Veuillez réessayer.", couleur="rouge")
+            message_couleur("Mouvement invalide. Veuillez réessayer.", couleur="rouge")
             continue  # Revenir au début de la boucle pour redemander le mouvement
 
         # Changer de tour
@@ -304,11 +305,11 @@ def boucle_jeu():
 
         # Afficher l'état actuel du jeu
         afficher_plateau(plateau)
-        afficher_message_couleur('Tour: ' + tour, couleur="jaune", gras=True)
-        afficher_message_couleur('Pions Bleus: ' + str(pions_noirs), couleur="magenta")
-        afficher_message_couleur('Pions Rouges: ' + str(pions_blancs), couleur="magenta")
+        print(message_couleur('Tour: ' + tour, couleur="jaune", gras=True))
+        print(message_couleur('Pions Bleus: ' + str(pions_noirs), couleur="magenta"))
+        print(message_couleur('Pions Rouges: ' + str(pions_blancs), couleur="magenta"))
 
-    afficher_message_couleur("Le jeu est terminé.", couleur="vert", gras=True)
+    message_couleur("Le jeu est terminé.", couleur="vert", gras=True)
 
 if __name__ == "__main__":
     boucle_jeu()
