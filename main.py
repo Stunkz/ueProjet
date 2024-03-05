@@ -235,13 +235,21 @@ def test_verifier_victoire():
 def test_peut_deplacer():
   pass
 
-
 def test_peut_sauter():
-  pass
-
+  assert peut_sauter(plateau_debut, 1, 0, 0) == True, "Test 1: peut_sauter(plateau_debut, 1, 0, 0) == True"
+  print("Tous les tests de peut_sauter() sont passés.")
 
 def test_peut_deplacer_normal():
   pass
 
-
+test_choisir_plateau()
+test_afficher_plateau()
+test_demander_mouvement()
+test_valider_format_saisie()
+test_est_au_bon_format()
+test_deplacer_pion()
+test_verifier_victoire()
+test_peut_deplacer()
+test_peut_sauter()
+test_peut_deplacer_normal()
 main()
